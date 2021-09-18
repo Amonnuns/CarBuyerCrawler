@@ -14,12 +14,10 @@ class Car:
 
 def jumpBetweenPages(lastPageNum,site,carName):
     num = int(lastPageNum[0])
-    print(num)
     i=2
     while(num >= i):
         newpage = site
         newpage = newpage+"?o={}&q={}".format(i,carName)
-        print(newpage+"\n")
         i+=1
         bsObj = request(newpage)
         getContent(bsObj)
