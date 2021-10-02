@@ -1,16 +1,8 @@
 from urllib.request import Request, urlopen      
 from bs4 import BeautifulSoup
+from .models import Car
 import re
-import sys
 
-#Classe Car será utilizada posteriormente.
-class Car:
-    def __init__(self, name, price, mileage, exchange, url):
-        self.name = name
-        self.price = price
-        self.mileage = mileage
-        self.exchange = exchange
-        self.url = url
 
 def jumpBetweenPages(lastPageNum,site,carName):
     num = int(lastPageNum[0])
@@ -50,9 +42,9 @@ def listCars(names,prices,infos,urls,imgs,searchedCar):
             except:
                 mileage = info.get_text()
 
-        listOfCars.append(Car(carName, carPrice, mileage, exchangeInfo, urlhref))
-        
         print(f"Name of the car:{carName}\nPrice:{carPrice}\nMileage:{mileage}\nExchange:{exchangeInfo}\nUrl:{urlhref}\nImage:{imagePath}\n--------------------------------------------------------------")
+        Car.objects.create(name=carName, price=carPrice,mileage=mileage,
+                            exchange=exchangeInfo,url= urlhref,img=imagePath)
 
 def request(site):
     hdr = {'User-Agent':'Mozilla/5.0'}
@@ -61,19 +53,16 @@ def request(site):
     bsObj = BeautifulSoup(html, features="html.parser")
     return bsObj
 
-def main():
-    site = sys.argv[1]
-    carName = input("Digite o carro que deseja buscar: ")
+def main(name):
+    site = "https://ba.olx.com.br/grande-salvador/autos-e-pecas/carros-vans-e-utilitarios"
+    carName = name.lower()
     firstPage = site+"?q={}".format(carName)
     bsObj = request(firstPage)
     lastPageNum = bsObj.find("a",{"class":"sc-1bofr6e-0 iRQkdN","data-lurker-detail":"last_page"})
     lastPageNum = re.findall(r'\d+', lastPageNum['href'])
-
     getContent(bsObj,carName)
-    #jumpBetweenPages(lastPageNum,site,carName)
+    jumpBetweenPages(lastPageNum,site,carName)
 
-
-main()
 
         
         

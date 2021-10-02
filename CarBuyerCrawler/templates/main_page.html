@@ -1,0 +1,13 @@
+{% extends "model-page.html" %}
+
+{% block content %}
+<h1>Car Seacher Crawler</h1>
+<form action="submit" method="POST">{% csrf_token %}
+    <div align="center">
+        <label>Digite o nome do carro que deseja buscar:</label>
+        <br>
+        <input type="text" size="30px" name="carName">
+        <button type="submit">Pesquisar</button>
+    </div>
+</form>    
+{% endblock %}
