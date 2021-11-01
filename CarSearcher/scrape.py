@@ -2,6 +2,7 @@ from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 from .models import Car
 import re
+import itertools
 
 
 def jumpBetweenPages(lastPageNum,site,carName):
@@ -19,20 +20,30 @@ def getContent(bsObj, carName):
     prices = bsObj.find_all("span",{"class":"sc-ifAKCX eoKYee"})
     infos = bsObj.find_all("span",{"class":"sc-1j5op1p-0 lnqdIU sc-ifAKCX eLPYJb"})
     urls = bsObj.find_all("a",{"class":"fnmrjs-0 fyjObc"})
-    imgs = bsObj.find_all("img",{"class":"sc-101cdir-1 fwpxEI"})
+    imgs = bsObj.find_all("img",{"class":"sc-101cdir-1 fwpxEI","class":"sc-101cdir-0 cldTqT"})
     listCars(names,prices,infos,urls,imgs, carName)
 
 def listCars(names,prices,infos,urls,imgs,searchedCar):
     listOfCars = []
-    for name, price, info, url, img in zip(names,prices,infos,urls,imgs):
-        if searchedCar in name.get_text().lower():
+    for name, price, info, url, img in itertools.zip_longest(names,prices,infos,urls,imgs,fillvalue=""):
+        
+        try:
+            nameComparison = name.get_text().lower()
+        except :
+            nameComparison = name.lower()
+
+        if searchedCar in nameComparison:
             urlhref = url['href']
             carName = name.get_text()
             carPrice = price.get_text()
             exchangeInfo = ""
-            imagePath = img['src']
+            try:
+                imagePath = img['data-src']
+            except :
+                imagePath = img['src']
         else:
             continue
+
         try:
             mileage, exchangeInfo, gasType = info.get_text().split("|")
         except:
